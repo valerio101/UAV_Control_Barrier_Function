@@ -91,7 +91,7 @@ def trajectory_function(type,t):
 
 		x = r * np.cos(w * t)
 		y = r * np.sin(w * t)
-		z = 0.5
+		z = 0.8
 
 		vx = -r * w * np.sin(w * t)
 		vy =  r * w * np.cos(w * t)
@@ -163,7 +163,7 @@ def move_box_limit(scf):
 def pid_try(scf):
 	with MotionCommander(scf, default_height=DEFAULT_HEIGHT) as mc:
 		Kp= 10
-		Kd =5
+		Kd =6
 		t_start=time.time()
 		a_old=np.array([0,0,0]).reshape(3,1)
 		t_old = 0
@@ -173,11 +173,11 @@ def pid_try(scf):
 		#posizione ostacolo 
 		obstacles_positions = [ 
 			np.array([8.39, 5.44 , 0.5]).reshape(3,1),
-			np.array([1.5, 10, 0.5]).reshape(3,1),  #ostacolo 1 10
-			np.array([1.5, 10, 1.5]).reshape(3,1),
-			np.array([1.5, 8, 0.5]).reshape(3,1), 
+			np.array([1.5, 10, 0.3]).reshape(3,1),  #ostacolo 1 10
+			np.array([1.5, 10, 0.8]).reshape(3,1),
+			np.array([1.5, 8, 1]).reshape(3,1), 
 			np.array([1.5, 8, 1.5]).reshape(3,1),
-			np.array([2, 10.5, 0.5]).reshape(3,1), 
+			np.array([2, 10.5, 1]).reshape(3,1), 
 			np.array([2.0, 10.5, 1.5]).reshape(3,1)
 			]
 		obstacles_velocities = [ 
@@ -224,7 +224,6 @@ def pid_try(scf):
 			R_T = R.T
 			R_dot = make_R_dot(w_x,w_y,w_z)
 			R_dot_T = R_dot.T
-			a = pdddes + Kp*(pdes-p) + Kd*(pddes-v) 
 			
 			#ostacolo più vicino
 			min_dist = float('inf')
@@ -234,7 +233,7 @@ def pid_try(scf):
 				if dist < min_dist:
 					min_dist = dist
 					closest_idx = i
-			
+			print(closest_idx)
 					
 			# Ostacolo scelto
 			p_bar = obstacles_positions[closest_idx]
@@ -245,16 +244,30 @@ def pid_try(scf):
 			V_T = V.reshape(1,3)
 			V_dot = v - v_bar
 			V_dot_T = V_dot.reshape(1,3)
-			mu=4
-			mu = 0.9
-			delta =5 #2
+			
+			#mu = 2
+			#delta = 3
+			
+			#parametro può toccare
+			mu = 3
+			delta = 6 
+			
+			#non dovrebbero toccare i droni
+			#mu = 6
+			#delta = 4
+			
+			
+			
+			
+			a = pdddes + Kp*(pdes-p) + Kd*(pddes-v) 
+			
 			M = np.array([[9.2, 0, 0],
 				 [0, 9.2, 0],
 				 [0, 0, 2.9]])
 			
 			#CBF
 			h = V_T @ R_T @ M @ R @ V + mu * V_T @ M @ V_dot - delta
-			h_dot = 2* V_T @ R_T @ M @ R @ V_dot + V_T @ ( R_dot_T @ M @ R + R_T @ M @ R_dot) @ V + mu * V_dot_T @ M @ V_dot + mu*V_T @ M @ (a - a_bar)
+			h_dot = 2* V_T @ R_T @ M @ R @ V_dot + V_T @ ( R_dot_T @ M @ R + R_T @ M @ R_dot) @ V + mu*V_T @ M @ (a - a_bar)
 			
 			Proj = V @ np.linalg.pinv(V_T @ V) @ V_T 
 			I = np.array([[1,0,0],[0,1,0],[0,0,1]]) 
@@ -276,12 +289,8 @@ def pid_try(scf):
 				#saturo velocità
 				#V_MAX=1
 				#input_v = np.clip(a_diverso, -V_MAX, V_MAX)
-
-				
-				#v_body = (R.T @ input_v).flatten()
 				
 				mc.start_linear_motion(float(input_v[0]),float(input_v[1]),float(input_v[2])) 
-				#mc.start_linear_motion(float(v_body[0]),float(v_body[1]),float(v_body[2])) 
 			print((p-pdes).reshape(1,3))
 			t_old = t
 			v_old = np.array(velocity_estimate).reshape(3,1)

@@ -4,6 +4,7 @@
   
   
    <model name="my_cube0">
+      <static>true</static>
       <pose>8.39 5.44 0.5 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
       <link name="link">
         <visual name="visual">
@@ -37,7 +38,8 @@
     
     
    <model name="my_cube1">
-      <pose>1.5 10 0.5 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
+   <static>true</static>
+      <pose>1.5 10 0.3 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -70,7 +72,8 @@
     
     
    <model name="my_cube2">
-      <pose>1.5 10 1.5 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
+   <static>true</static>
+      <pose>1.5 10 0.8 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -102,7 +105,8 @@
     </model>
     
     <model name="my_cube3">
-      <pose>1.5 8 0.5 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
+    <static>true</static>
+      <pose>1.5 8 1 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -134,6 +138,7 @@
     </model>
     
     <model name="my_cube4">
+    <static>true</static>
       <pose>1.5 8 1.5 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
       <link name="link">
         <visual name="visual">
@@ -166,7 +171,8 @@
     </model> 
     
      <model name="my_cube5">
-      <pose>2 10.5 0.5 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
+     <static>true</static>
+      <pose>2 10.5 1 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -198,6 +204,7 @@
     </model> 
     
      <model name="my_cube6">
+     <static>true</static>
       <pose>2 10.5 1.5 0 0 0</pose> <!-- posizione x=1m, y=1m, z=0.5m -->
       <link name="link">
         <visual name="visual">
