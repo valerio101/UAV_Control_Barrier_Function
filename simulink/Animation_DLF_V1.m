@@ -97,7 +97,7 @@ Z0_Drone = drone.ZData;
 rotoTranslateDrone(drone, X0_Drone,Y0_Drone,Z0_Drone,[X_drone(1) Y_drone(1)  Z_drone(1)], R(:,:,1))
 
 hold on
-cubo =generateCubeMesh("./cubo1.stl");
+cubo =generateCubeMesh("./cubo.stl");
 %x0 = 20; y0 = 0; z0 = 0;
 %rotoTranslateDrone(cubo, cubo.XData, cubo.YData, cubo.ZData, [x0,y0,z0], eye(3));
 hold on
