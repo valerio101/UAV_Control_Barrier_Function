@@ -161,9 +161,9 @@ def pid_try(scf):
 			delta_t= t - t_old
 			R = 5 
 			
-			pdes= np.array([1*t, 0, 0.5]).reshape(3,1)
+			pdes= np.array([0.1*t, 0, 0.5]).reshape(3,1)
 			
-			pddes= np.array([1, 0 ,0]).reshape(3,1)
+			pddes= np.array([0.1, 0 ,0]).reshape(3,1)
 			pdddes=np.array([ 0, 0 , 0]).reshape(3,1)
 			#posizione drone
 			p =np.array([position_estimate[0],position_estimate[1],position_estimate[2]]).reshape(3,1)
@@ -171,7 +171,7 @@ def pid_try(scf):
 			v = np.array([velocity_estimate[0],velocity_estimate[1],velocity_estimate[2]]).reshape(3,1)
 			
 			#posizione ostacolo (-8,6,10) incontra a t=50
-			p_bar = np.array([10, 0.5, 0.5]).reshape(3,1)
+			p_bar = np.array([1, 0.06, 0.45]).reshape(3,1)
 			v_bar = np.array([0,0,0]).reshape(3,1)
 			a_bar = np.array([0,0,0]).reshape(3,1)
 			
@@ -179,8 +179,8 @@ def pid_try(scf):
 			V_T = V.reshape(1,3)
 			V_dot = v - v_bar
 			V_dot_T = V_dot.reshape(1,3)
-			mu = 0.9
-			delta = 5
+			mu = 1.2
+			delta = 0.4
 
 			M = np.array([[9.2, 0, 0],
 				 [0, 9.2, 0],
@@ -198,8 +198,8 @@ def pid_try(scf):
 			h_dot = 2* V_T @ V_dot + mu * V_dot_T @ V_dot + mu*V_T @ (a - a_bar)
 			
 			#CBF con M
-			h= V_T @ M @ V + mu * V_T  @ M @ V_dot - delta
-			h_dot = 2* V_T @ M @ V_dot + mu * V_dot_T @ M @ V_dot + mu*V_T @ M @ (a - a_bar)
+			#h= V_T @ M @ V + mu * V_T  @ M @ V_dot - delta
+			#h_dot = 2* V_T @ M @ V_dot + mu * V_dot_T @ M @ V_dot + mu*V_T @ M @ (a - a_bar)
 			
 			Proj = V @ np.linalg.pinv(V_T @ V) @ V_T 
 			I = np.array([[1,0,0],[0,1,0],[0,0,1]]) 
@@ -213,8 +213,8 @@ def pid_try(scf):
 			else:
 				print("ostacolo")
 				a_diverso = - 2/mu*V_dot + a_bar + Proj_perp @ a 
-				a_diversoM = -2 /mu * V_dot + a_bar + Proj_perp @ a
-				input_v = v_old + a_diversoM * delta_t 
+				#a_diversoM = -2 /mu * V_dot + a_bar + Proj_perp @ a
+				input_v = v_old + a_diverso* delta_t 
 				
 				mc.start_linear_motion(float(input_v[0]),float(input_v[1]),float(input_v[2])) 
 			print((p-pdes).reshape(1,3))
