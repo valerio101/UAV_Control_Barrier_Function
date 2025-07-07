@@ -71,6 +71,43 @@ def trajectory_function(type,t):
         
         ax = 0
         ay = 0
+    elif type == 'spezzata':
+        if(t<=10):
+            x=0.2*t
+            y=0
+
+            vx = 0.2
+            vy = 0
+
+            ax = 0
+            ay = 0
+        elif(t>10 and t<=20):
+            x=0.2*10
+            y=0.2*(t-10) 
+
+            vx = 0
+            vy = 0.2
+
+            ax = 0
+            ay = 0
+        elif(t>20 and t<=30):
+            x=0.2*10-0.2*(t-20)
+            y=0.2*10 
+
+            vx = -0.2
+            vy = 0
+
+            ax = 0
+            ay = 0
+        elif(t>30 and t<=40):
+            x=0
+            y=0.2*10-0.2*(t-30) 
+
+            vx = 0
+            vy = -0.2
+
+            ax = 0
+            ay = 0
        
         
     else:
@@ -125,6 +162,7 @@ def qp_cbf_control(p,v, u_ref, delta, mu,R,R_dot, kappa):
     d = np.array(p - p_bar)
     M = np.array([[0.92, 0],
           [0, 0.92]])
+   # h = d.T * R.T @ M @ R @ d + mu * d.T @ M @ v - delta
     h = d.T @ R.T @ M @ R @ d + mu * d.T @ M @ v - delta
 
     # Lie-derivatives for  h_dot = L_f_h + L_f_h*u
@@ -197,7 +235,7 @@ def pid_try(scf):
             v = np.array([velocity_estimate[0],velocity_estimate[1]]).reshape(2,1)
             
             #traiettoria di rifermiento 
-            pdes , pddes , pdddes = trajectory_function('linear_motion',t)
+            pdes , pddes , pdddes = trajectory_function('spezzata',t)
 
             #pdes= np.array([R*np.cos(w*t)-R, R*np.sin(w*t), DEFAULT_HEIGHT+0.01*t]).
             zdes = DEFAULT_HEIGHT
@@ -207,7 +245,7 @@ def pid_try(scf):
             vz = Kp*(zdes-z)
 
             mu = 0.1
-            delta = 1
+            delta = 0.5
  
             u_ref = pdddes + Kp*(pdes-p) + Kd*(pddes-v)
 
