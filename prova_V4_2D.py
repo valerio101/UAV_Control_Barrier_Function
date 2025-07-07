@@ -98,38 +98,38 @@ def trajectory_function(type,t):
        
     elif type == 'spezzata':
         if(t<=10):
-            x=0.5*t
+            x=0.2*t
             y=0
 
-            vx = 0.5
+            vx = 0.2
             vy = 0
 
             ax = 0
             ay = 0
         elif(t>10 and t<=20):
-            x=0.5*10
-            y=0.5*(t-10) 
+            x=0.2*10
+            y=0.2*(t-10) 
 
             vx = 0
-            vy = 0.5
+            vy = 0.2
 
             ax = 0
             ay = 0
         elif(t>20 and t<=30):
-            x=0.5*10-0.5*(t-20)
-            y=0.5*10 
+            x=0.2*10-0.2*(t-20)
+            y=0.2*10 
 
-            vx = -0.5
+            vx = -0.2
             vy = 0
 
             ax = 0
             ay = 0
         elif(t>30 and t<=40):
             x=0
-            y=0.5*10-0.5*(t-30) 
+            y=0.2*10-0.2*(t-30) 
 
             vx = 0
-            vy = -0.5
+            vy = -0.2
 
             ax = 0
             ay = 0
@@ -202,9 +202,12 @@ def pid_try(scf):
             np.array([0,0,0]).reshape(3,1)
             ]
         """
-        obstacles_positions = [np.array([10,0]).reshape(2,1)]
-        obstacles_velocities = [np.array([0,0]).reshape(2,1)]
-        obstacles_accelerations = [np.array([0,0]).reshape(2,1)]
+        obstacles_positions = [np.array([2,0]).reshape(2,1),
+                               np.array([1.5,2]).reshape(2,1)]
+        obstacles_velocities = [np.array([0,0]).reshape(2,1),
+                                np.array([0,0]).reshape(2,1)]
+        obstacles_accelerations = [np.array([0,0]).reshape(2,1),
+                                   np.array([0,0]).reshape(2,1)]
         j=0
         while(1):
             t= time.time() - t_start 
@@ -257,9 +260,9 @@ def pid_try(scf):
             #delta = 3
             
             #parametro può toccare
-            mu = 0.9
+            mu = 0.1
             
-            delta = 1
+            delta = 0.3
             
             
             #non dovrebbero toccare i droni
@@ -295,7 +298,7 @@ def pid_try(scf):
                     
                 a_diverso = - 1/mu * np.linalg.pinv(M) @ Proj @ (2*R_T @ M @ R @ V_dot + (R_dot_T @ M @ R + R_T @ M @ R_dot) @ V) + np.linalg.pinv(M) @ a_bar + np.linalg.pinv(M) @ Proj_perp @ a 
                 
-                
+                a_diverso = np.clip(a_diverso, -1, 1)
                 input_v = v_old + a_diverso * delta_t
                 mc.start_linear_motion(float(input_v[0]),float(input_v[1]),float(vz)) 
             #print((p-pdes).reshape(1,3))
