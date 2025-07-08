@@ -17,18 +17,18 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 URI = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E4')
 
-DEFAULT_HEIGHT = 0.5
+DEFAULT_HEIGHT = 0.6
 BOX_LIMIT = 0.5
 
 deck_attached_event = Event()
 
 logging.basicConfig(level=logging.ERROR)
 
-position_estimate = [0,0, 0]
+position_estimate = [0, 0, 0]
 velocity_estimate = [0, 0, 0]
 def trajectory_function(type,t):
-    x0=0
-    y0=0
+    x0=1.2
+    y0=1.4
     if type == 'horizontal_circle':
         r = 10
         w = 0.05
@@ -58,39 +58,40 @@ def trajectory_function(type,t):
         az = 0 
     
     elif type == 'spezzata':
-        if(t<=10):
-            x=x0+0.1*t
+        vv = 0.1
+        if(t<=25):
+            x=x0+vv*t
             y=y0
 
-            vx = 0.1
+            vx = vv
             vy = 0
 
             ax = 0
             ay = 0
-        elif(t>10 and t<=20):
-            x=x0+0.1*10
-            y=y0+0.1*(t-10) 
+        elif(t>25 and t<=40):
+            x=x0+vv*25
+            y=y0+vv*(t-25) 
 
             vx = 0
-            vy = 0.1
+            vy = vv
 
             ax = 0
             ay = 0
-        elif(t>20 and t<=30):
-            x=x0+0.1*10-0.1*(t-20)
-            y=y0+0.1*10 
+        elif(t>40 and t<=65):
+            x=x0+vv*25-vv*(t-40)
+            y=y0+vv*15 
 
-            vx = -0.1
+            vx = -vv
             vy = 0
 
             ax = 0
             ay = 0
-        elif(t>30 and t<=40):
+        elif(t>65 and t<=80):
             x=x0
-            y=y0+0.1*10-0.1*(t-30) 
+            y=y0+vv*15-vv*(t-65) 
 
             vx = 0
-            vy = -0.1
+            vy = -vv
 
             ax = 0
             ay = 0
@@ -128,46 +129,21 @@ def pid_try(scf):
         Kp= 2
         Kd =5
         t_start=time.time()
-        a_old=np.array([0,0,0]).reshape(3,1)
+        t = 0
+        a_old=np.array([0,0]).reshape(2,1)
         t_old = 0
         v_old = np.array([velocity_estimate[0],velocity_estimate[1]]).reshape(2,1)
         
         
         #posizione ostacolo 
-        """
-        obstacles_positions = [ 
-            np.array([8.39, 5.44 , 0.8]).reshape(3,1),
-            np.array([1.5, 10, 0.3]).reshape(3,1),  #ostacolo 1 10
-            np.array([1.5, 10, 0.8]).reshape(3,1),
-            np.array([1.5, 8, 1]).reshape(3,1), 
-            np.array([1.5, 8, 1.5]).reshape(3,1),
-            np.array([2, 10.5, 1]).reshape(3,1), 
-            np.array([2.0, 10.5, 1.5]).reshape(3,1)
-            ]
-        obstacles_velocities = [ 
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1)
-            ]
-        obstacles_accelerations = [ 
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1),
-            np.array([0,0,0]).reshape(3,1)
-            ]
-        """
-        obstacles_positions = [np.array([100,0]).reshape(2,1)]
-        obstacles_velocities = [np.array([0,0]).reshape(2,1)]
-        obstacles_accelerations = [np.array([0,0]).reshape(2,1)]
+       
+        x0=1.2 
+        y0=1.4
+        obstacles_positions = [np.array([x0+1.25,y0+1.75]).reshape(2,1), np.array([x0+2.5,y0-0.25]).reshape(2,1)]
+        obstacles_velocities = [np.array([0,0]).reshape(2,1), np.array([0,0]).reshape(2,1)]
+        obstacles_accelerations = [np.array([0,0]).reshape(2,1), np.array([0,0]).reshape(2,1)]
         j=0
-        while(t<50):
+        while(t<120):
             t= time.time() - t_start 
             
             print(t)
@@ -201,17 +177,17 @@ def pid_try(scf):
             a_bar = obstacles_accelerations[closest_idx]
             
             V = p - p_bar
-            V_T = V.reshape(1,3)
+            V_T = V.reshape(1,2)
             V_dot = v - v_bar
-            V_dot_T = V_dot.reshape(1,3)
+            V_dot_T = V_dot.reshape(1,2)
             
             #mu = 2
             #delta = 3
             
             #parametro può toccare
-            mu = 0.9
+            mu = 0.1
             
-            delta = 0.3
+            delta = 0.25
             
             
             #non dovrebbero toccare i droni
@@ -227,31 +203,31 @@ def pid_try(scf):
                  [0, 0.92]])
             
             #CBF
-            h = V_T @ M @ V + mu * V_T @ M @ V_dot - delta
-            h_dot = 2* V_T @ M @ V_dot + mu*V_T @ M @ (a - a_bar)
+            h = V_T @ V + mu * V_T @ V_dot
+            h_dot = 2* V_T @ V_dot + mu*V_T @ (a - a_bar)
             
             Proj = V @ np.linalg.pinv(V_T @ V) @ V_T 
             I = np.array([[1,0],[0,1]]) 
             Proj_perp= I - Proj
             a_diverso = np.array([0,0]).reshape(2,1)
-            zdes=0.5
+            zdes=DEFAULT_HEIGHT
             vz = Kp*(zdes-z)
             if h_dot > 0 or h > delta:
-                print("no ostacolo")
                 #A_MAX = 0.8
                 #a[2] = np.clip(a[2], -1000, A_MAX)
-                input_v = v_old +a * delta_t
-                mc.start_linear_motion(float(input_v[0]),float(input_v[1]),float(input_v[2]))
+                input_v = (v_old +a * delta_t).flatten()
+                mc.start_linear_motion(float(input_v[0]),float(input_v[1]),float(vz))
                 
             else:
                     
                 
-                a_diverso = - 1/mu * np.linalg.pinv(M) @ Proj @ (2* M @ R @ V_dot) + np.linalg.pinv(M) @ a_bar + np.linalg.pinv(M) @ Proj_perp @ a 
+                a_diverso = - 1/mu * Proj @ (2*  V_dot - a_bar) + Proj_perp @ a 
             
                 
-                input_v = v_old + a_diverso * delta_t
-                mc.start_linear_motion(float(input_v[0]),float(input_v[1]),float(input_v[2])) 
-            print((p-pdes).reshape(1,3))
+                input_v = (v_old + a_diverso * delta_t).flatten()
+                mc.start_linear_motion(float(input_v[0]),float(input_v[1]),float(vz)) 
+
+            print((p-pdes).reshape(1,2))
             t_old = t
             v_old = np.array([velocity_estimate[0],velocity_estimate[1]]).reshape(2,1)
             
